@@ -29,22 +29,21 @@ const Game2 = () => {
                 board[y][x] = false;
             }
         }
-        console.log(board)
         return board;
     }
 
     // make cells array for rendering
     const makeCells = () => {
-
-        let cellsArr = [];
+        let cells = []
         for (let y=0; y<rows; y++) {
             for (let x=0; x<cols; x++) {
                 if (board[y][x]) {
-                    cellsArr.push({ x, y });
+                    cells.push({ x, y });
                 }
             }
-        }
-        setCells(cellsArr);
+        } 
+        console.log(`Cells(in makeCells): ${cells}`)
+        return cells
     }
 
     // set board to a board of dead cells at page load
@@ -66,6 +65,7 @@ const Game2 = () => {
 
     // handle when user clicks on the board
     const handleClick = (e) => {
+        console.log(`Board: ${board}`)
         const elemOffset = getElementOffset();
         const offsetX = e.clientX - elemOffset.x;
         const offsetY = e.clientY - elemOffset.y;
@@ -74,6 +74,7 @@ const Game2 = () => {
         if (x>=0 && x<=cols && y>=0 && y<=rows) {
             board[y][x] = !board[y][x];
         }
+        setCells(makeCells());
     }
 
     // run the game
@@ -123,6 +124,7 @@ const Game2 = () => {
                 }
             }
         }
+        setCells(makeCells());
     }
 
     // calculate neighbors for game logic
@@ -143,13 +145,19 @@ const Game2 = () => {
 
     // clear board
     const handleClear = () => {
-        for (let y=0; y<rows; y++) {
-            for (let x=0; x<cols; x++) {
-                board[y][x] = false;
+        if (isRunning === false) {
+            for (let y=0; y<rows; y++) {
+                for (let x=0; x<cols; x++) {
+                    board[y][x] = false;
+                }
             }
+            setBoard(board);
+            setCells([]);
+            setCount(0);
+        } else {
+            alert("Hey! You can't clear the game board while the simulation is running!")
         }
-        console.log(board)
-        setBoard(board);
+        
     }
     
     // set a random design of live cells
@@ -159,8 +167,8 @@ const Game2 = () => {
                 board[y][x] = (Math.random() >= 0.5);
             }
         }
-        console.log(board)
         setBoard(board);
+        setCells(makeCells());
     }
 
     return (
@@ -174,7 +182,7 @@ const Game2 = () => {
                 onClick={handleClick}
                 ref={boardRef}
             >
-                {cells.map(cell => (
+                {cells && cells.map(cell => (
                     <Cell
                         x={cell.x}
                         y={cell.y}
