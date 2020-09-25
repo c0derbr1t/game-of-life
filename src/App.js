@@ -1,13 +1,14 @@
 import React from 'react';
 import './App.css';
-import Board from './components/Board.js';
+// import Game from './components/Game.js';
+import Game2 from './components/Game2.js';
 
 function App() {
   return (
     <div className="App">
       <h1>Conway's Game of Life</h1>
       <h3>Implemented by Brittani Luce</h3>
-      <Board />
+      <Game2 />
     </div>
   );
 }
