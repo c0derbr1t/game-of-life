@@ -1,0 +1,38 @@
+a { 
+    color: #f0e3ce;
+    text-decoration: none;
+    font-size: 1.7rem;
+    margin: 0 auto;
+    text-align: center;
+    background: rgba(135, 0, 0, 0.5);
+    padding: .5%;
+    border-radius: 15%;
+}
+
+.Info {
+    font-size: 1.5rem;
+    width: 95%;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    color: #e3d2b6;
+}
+
+.Rules {
+    text-align: left;
+    margin: 1% 5% 1% 0;
+}
+
+ul{
+    list-style-type: circle;
+    list-style-position: inside;
+    padding: 1%;
+
+}
+
+.About {
+    width: 90%;
+    text-align: left;
+    margin: 1%;
+}
