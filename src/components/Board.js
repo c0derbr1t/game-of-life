@@ -1,5 +1,6 @@
 import React from 'react';
 import './Board.css';
+//useMemo hook for double buffer
 
 // Set global variables (can be used with user input later)
 const CELL_SIZE = 20;
@@ -36,6 +37,7 @@ class Board extends React.Component {
         cells: [],
         interval: 100,
         isRunning: false,
+        count: 0
     }
 
     // Create an empty board
@@ -64,6 +66,7 @@ class Board extends React.Component {
                 }
             }
         }
+
         return cells;
     }
 
@@ -114,18 +117,10 @@ class Board extends React.Component {
 
     runIteration() {
         console.log('running iteration');
+        console.log(this.state.count)
 
         let newBoard = this.makeEmptyBoard();
-        // TODO: Add logic for each iteration here.
-        this.board = newBoard;
-        this.setState({
-            cells: this.makeCells()
-        });
-
-        this.timeoutHandler = window.setTimeout(() => {
-            this.runIteration();
-        }, this.state.interval)
-
+        
         for(let y = 0; y < this.rows; y++) {
             for(let x = 0; x < this.cols; x++) {
                 let neighbors = this.calculateNeighbors(this.board, x, y);
@@ -142,6 +137,17 @@ class Board extends React.Component {
                 }
             }
         }
+
+        this.board = newBoard;
+        this.setState({
+            cells: this.makeCells()
+        });
+
+        this.timeoutHandler = window.setTimeout(() => {
+            this.runIteration();
+        }, this.state.interval)
+
+        
     }
 
     calculateNeighbors(board, x, y) {
@@ -161,13 +167,32 @@ class Board extends React.Component {
     }
 
     handleIntervalChange = (e) => {
+
         this.setState({
-            interval: e.target.value
+            interval: e.target.value,
+        });
+    }
+
+    handleClear = () => {
+        this.board = this.makeEmptyBoard();
+        this.setState({
+            cells: this.makeCells()
+        });
+    }
+
+    handleRandom = () => {
+        for(let y = 0; y < this.rows; y++) {
+            for(let x = 0; x < this.cols; x++) {
+                this.board[y][x] = (Math.random() >= 0.5);
+            }
+        }
+        this.setState({
+            cells: this.makeCells()
         });
     }
     
     render() {
-        const { cells } = this.state;
+        const { cells, interval, isRunning } = this.state;
         return (
             <div>
                 <div 
@@ -212,6 +237,19 @@ class Board extends React.Component {
                             Run
                         </button>
                     }
+                    <button
+                        className="button"
+                        onClick={this.handleRandom}
+                    >
+                        Random
+                    </button>
+                    <button
+                        className="button"
+                        onClick={this.handleClear}
+                    >
+                        Clear
+                    </button>
+                    Generation: {this.count}
                 </div>
             </div>
         );
