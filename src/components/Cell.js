@@ -1,5 +1,5 @@
 import React from 'react';
-import './Board.css';
+import './Game.css';
 
 const CELL_SIZE = 25;
 

@@ -1,27 +1,32 @@
 import React, { useState, useEffect, useRef } from 'react';
+// useMemo
 import './Board.css';
-import Cell from './Cell.js';
+// import Cell from './Cell.js';
 
+// Set global variables (can be used with user input later)
 const CELL_SIZE = 25;
 const WIDTH = 800;
 const HEIGHT = 650;
+
 
 const Game2 = () => {
     let rows = HEIGHT / CELL_SIZE;
     let cols = WIDTH / CELL_SIZE;
 
-    // set state
-    const [board, setBoard] = useState([]);
-    const [cells, setCells] = useState([]);
-    // const [interval, setInterval] = useState(100);
-    const [count, setCount] = useState(0);
+    // const [cells, setCells] = useState();
+    const [interval, setInterval] = useState(100);
     const [isRunning, setIsRunning] = useState(false);
+    const [board, setBoard] = useState();
+    // const [nextBoard, setNextBoard] = useState([]);
+    // const [gridA, setGridA] = useState([]);
+    // const [gridB, setGridB] = useState([]);
+    const [count, setCount] = useState(0);
+    const [checkTimeout, setCheckTimeout] = useState(null);
+    const [timeoutHandler, setTimeoutHandler] = useState();
+    const boardRef = useRef(null)
 
-    // set ref
-    const boardRef = useRef(null);
-
-    // make an empty board
     const makeEmptyBoard = () => {
+        let board = []
         for (let y=0; y<rows; y++) {
             board[y] = [];
 
@@ -29,31 +34,34 @@ const Game2 = () => {
                 board[y][x] = false;
             }
         }
+        console.log(board)
         return board;
     }
 
-    // make cells array for rendering
-    const makeCells = () => {
-        let cells = []
-        for (let y=0; y<rows; y++) {
-            for (let x=0; x<cols; x++) {
-                if (board[y][x]) {
-                    cells.push({ x, y });
-                }
-            }
-        } 
-        console.log(`Cells(in makeCells): ${cells}`)
-        return cells
-    }
+    // const makeCells = () => {
+    //     let cellsArr = [];
 
-    // set board to a board of dead cells at page load
+    //     for (let y=0; y<rows; y++) {
+    //         for (let x=0; x<cols; x++) {
+    //             if (board[y][x]) {
+    //                 cellsArr.push({ x, y });
+    //             }
+    //         }
+    //     }
+    //     setCells(cellsArr);
+    // }
+
     useEffect(() => {
         setBoard(makeEmptyBoard());
-        makeCells();
     }, [])
+    
 
-    // determine where board is on the users screen
-    const getElementOffset = () => {
+    // setGridA(makeEmptyBoard());
+    // setBoard(gridA);
+    // setGridB(makeEmptyBoard());
+    // setNextBoard(gridB);
+
+    const getElementOffset = (e) => {
         const rect = boardRef.current.getBoundingClientRect();
         const doc = document.documentElement;
 
@@ -63,71 +71,95 @@ const Game2 = () => {
         };
     }
 
-    // handle when user clicks on the board
     const handleClick = (e) => {
-        console.log(`Board: ${board}`)
         const elemOffset = getElementOffset();
         const offsetX = e.clientX - elemOffset.x;
         const offsetY = e.clientY - elemOffset.y;
         const x = Math.floor(offsetX / CELL_SIZE);
         const y = Math.floor(offsetY / CELL_SIZE);
+
+        // console.log(board)
+
         if (x>=0 && x<=cols && y>=0 && y<=rows) {
+            
             board[y][x] = !board[y][x];
         }
-        setCells(makeCells());
+        // setCells(makeCells());
     }
 
-    // run the game
+    // useEffect(() => {
+    //     const tempTimeoutHandler = setTimeout(() => {
+    //         runIteration();
+    //         setCheckTimeout(true);
+
+    //         setTimeoutHandler(tempTimeoutHandler);
+    //     }, interval);
+    // }, [interval])
+
     const runGame = () => {
         setIsRunning(true);
-        // TODO: run generations
         runIteration();
     }
 
-    // stop the game
     const stopGame = () => {
         setIsRunning(false);
-        // TODO: timeout or other function to stop game!
+
+        if (checkTimeout) {
+            clearTimeout(timeoutHandler);
+            setCheckTimeout(null)
+        }
     }
 
-    // run an iteration of the game
-    const runIteration = () => {
-        console.log('Running Iteration');
-        console.log(count);
-        setCount(count + 1)
+    // const switchBoard = (board) => {
+    //     if (gridA === board) {
+    //         setBoard(gridB);
+    //         setNextBoard(gridA);
+    //     } else if (gridB === board) {
+    //         setBoard(gridA);
+    //         setNextBoard(gridB);
+    //     }
+    // }
 
-        let boardCopy = board;
+    // const doubleBuffer = useMemo(() => makeEmptyBoard(), [count]);
+
+    const runIteration = () => {
+        console.log('Running Iteration')
+        console.log(count)
+
+        // let tempBoard = []
+        // for (let y=0; y<rows; y++) {
+        //     board[y] = [];
+        //     for (let x=0; x<cols; x++) {
+        //         board[y][x] = false;
+        //     }
+        // }
+        // console.log(board)
+        // return board;
+
 
         for (let y=0; y<rows; y++) {
-            for (let x=0; x<cols; x++) {
-                let neighbors = calculateNeighbors(boardCopy, x, y);
-                if (boardCopy[y][x]) {
-                    switch (neighbors) {
-                        case 2 || 3:
-                            board[y][x] = true;
-                            break;
-                        default:
-                            board[y][x] = false;
-                            break;
+            for(let x=0; x<cols; x++) {
+                let neighbors = calculateNeighbors(board, x, y);
+                if (board[y][x]) {
+                    if (neighbors === 2 || neighbors === 3){
+                        newBoard[y][x] = true;        
+                    } else {
+                        newBoard[y][x] = false;
                     }
                 } else {
-                    if (!boardCopy[y][x]) {
-                        switch (neighbors) {
-                            case 3:
-                                board[y][x] = true;
-                                break;
-                            default:
-                                board[y][x] = false;
-                                break;
-                        }
+                    if (!board[y][x] && neighbors === 3) {
+                        newBoard[y][x] = true;
                     }
                 }
             }
         }
-        setCells(makeCells());
-    }
 
-    // calculate neighbors for game logic
+        // switchBoard(board);
+        setCells(makeCells());
+        setCount(count + 1);
+    }
+    
+
     const calculateNeighbors = (board, x, y) => {
         let neighbors = 0;
         const sides = [[-1, -1], [-1, 0], [-1, 1], [0, 1], [1, 1], [1, 0], [1, -1], [0, -1]];
@@ -143,34 +175,32 @@ const Game2 = () => {
         return neighbors;
     }
 
-    // clear board
-    const handleClear = () => {
-        if (isRunning === false) {
-            for (let y=0; y<rows; y++) {
-                for (let x=0; x<cols; x++) {
-                    board[y][x] = false;
-                }
-            }
-            setBoard(board);
-            setCells([]);
-            setCount(0);
-        } else {
-            alert("Hey! You can't clear the game board while the simulation is running!")
-        }
-        
+    const handleIntervalChange = (e) => {
+        setInterval(e.target.value);
     }
-    
-    // set a random design of live cells
+
+    const handleClear = () => {
+        setBoard(makeEmptyBoard())
+        // if (board === gridA) {
+        //     setGridA(makeEmptyBoard());
+        //     setCells(makeCells());
+        //     setBoard(gridA);
+        // } else if (board === gridB) {
+        //     setGridB(makeEmptyBoard());
+        //     setCells(makeCells());
+        //     setBoard(gridB);
+        // }
+    }
+
     const handleRandom = () => {
         for (let y=0; y<rows; y++) {
             for (let x=0; x<cols; x++) {
                 board[y][x] = (Math.random() >= 0.5);
             }
         }
-        setBoard(board);
         setCells(makeCells());
     }
-
+    
     return (
         <div>
             <div
@@ -180,9 +210,9 @@ const Game2 = () => {
                     height: HEIGHT,
                     backgroundSize: `${CELL_SIZE}px ${CELL_SIZE}px`}}
                 onClick={handleClick}
-                ref={boardRef}
-            >
-                {cells && cells.map(cell => (
+                ref={boardRef}            >
+                {console.log("grid")}
+                {cells.map(cell => (
                     <Cell
                         x={cell.x}
                         y={cell.y}
@@ -191,26 +221,32 @@ const Game2 = () => {
                 ))}
             </div>
             <div className="Controls">
-                Generation: {count}
-                {isRunning ?
-                <button
-                    className="button"
-                    onClick={stopGame}
-                >STOP</button>
-            :
-                <button
-                    className="button"
-                    onClick={runGame}
-                >RUN</button>
-            }
+                {console.log("controls")}
+                Update Every: 
+                <input
+                    value={interval}
+                    onChange={handleIntervalChange}
+                />
+                msec {isRunning ?
+                    <button
+                        className="button"
+                        onClick={stopGame}
+                    >STOP</button>
+                :
+                    <button
+                        className="button"
+                        onClick={runGame}
+                    >RUN</button>    
+                }
                 <button
                     className="button"
                     onClick={handleRandom}
                 >Random</button>
-                <button
+                <button 
                     className="button"
                     onClick={handleClear}
                 >Clear</button>
+                Generation: {count}
             </div>
         </div>
     )
