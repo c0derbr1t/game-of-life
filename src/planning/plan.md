@@ -94,6 +94,31 @@ Consider creating one when you figure out what in the world you are doing, Brit!
 
 ## 🧩 PLAN
 
+Will be using NPM as package manager
+
+- Create React App
+
+- game-of-life
+
+- components folder
+    - Game.js
+
+- styles folder
+    - Game.css
+    - Styles.js ????
+
+- Use a dark rusty red with charcoal lines for the grid
+
+- Use a cream color for live cells
+
+- Page background will be black with the cream color words 
+
+- Headings in a version of the red
+
+- Buttons in red with cream words, Cream with red words when active
+
+- Border around grid changes when game is running
+
 -----
 
 ## 💫 EXECUTE
